@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pydantic
+python-dotenv
+pandas
+numpy
+requests
+rank-bm25
+scikit-learn
+fastembed
+pytest
+groq
+ragas
+pandas
+numpy
+datasets

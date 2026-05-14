@@ -1,0 +1,128 @@
+# Python
+
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+
+# Virtual Environments
+
+
+venv/
+shl_env/
+.env/
+.venv/
+
+
+
+# Environment Variables
+
+
+.env
+
+
+
+# VS Code
+
+
+.vscode/
+
+
+
+# Jupyter
+
+
+.ipynb_checkpoints/
+
+
+
+# Build / Distribution
+
+
+build/
+dist/
+*.egg-info/
+
+
+
+# Logs
+
+
+*.log
+
+
+
+# OS Files
+
+
+.DS_Store
+Thumbs.db
+
+
+
+# Testing / Coverage
+
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+
+
+# FastEmbed / ONNX Cache
+
+
+fastembed_cache/
+*.onnx
+
+
+
+# Temporary Files
+
+
+tmp/
+temp/
+
+
+
+# Model Files
+
+
+models/
+checkpoints/
+
+
+
+# Evaluation Outputs
+
+
+evaluation/results/
+evaluation/*.csv
+
+
+
+# Render / Deployment
+
+
+.render/
+
+
+
+# Local Database / Vector Stores
+
+
+*.db
+*.sqlite3
+chroma/
+qdrant_storage/
+
+
+
+# Misc
+
+
+*.bak
+*.swp
+

@@ -1,0 +1,24 @@
+[
+  {
+    "query": "Need remote assessments for entry-level software engineers with communication skills",
+    "ground_truth": [
+      "Interpersonal Communications",
+      "Business Communication (adaptive)",
+      "Agile Software Development"
+    ]
+  },
+  {
+    "query": "Need personality assessments for managers",
+    "ground_truth": [
+      "OPQ32r"
+    ]
+  },
+  {
+    "query": "Need adaptive coding assessments for software engineers",
+    "ground_truth": [
+      "Agile Software Development",
+      "Java 8 (New)"
+    ]
+  }
+]
+
