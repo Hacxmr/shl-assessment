@@ -64,9 +64,12 @@ bm25 = BM25Okapi(tokenized_docs)
 
 print("Loading embedding model...")
 
-embedding_model = TextEmbedding(
-    model_name="sentence-transformers/all-MiniLM-L6-v2",
+
+embedding_model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
 )
+
+
 
 
 
@@ -75,13 +78,12 @@ embedding_model = TextEmbedding(
 
 print("Generating semantic embeddings...")
 
-doc_embeddings = list(
-    embedding_model.embed(documents)
+doc_embeddings = embedding_model.encode(
+    documents,
+    convert_to_numpy=True
 )
 
-doc_embeddings = np.array(
-    doc_embeddings
-)
+
 
 
 
@@ -325,10 +327,12 @@ def bm25_search(query, k=50):
 def semantic_search(query, k=50):
 
     try:
-        query_embedding = model.encode(
-        [query],
-        convert_to_numpy=True
+        query_embedding = embedding_model.encode(
+            [query],
+            convert_to_numpy=True
         )[0]
+
+
 
 
 
