@@ -23,24 +23,9 @@ Built for the SHL Labs AI Intern take-home assignment.
 ---
 
 # System Architecture
+![System Architecture](https://raw.githubusercontent.com/Hacxmr/shl-assessment/main/diagram-shl.png)
 
-```text
-User Query
-    ↓
-Guardrails
-    ↓
-Clarification Detection
-    ↓
-Constraint Extraction
-    ↓
-Hybrid Semantic Retrieval
-    ↓
-Prompt Construction
-    ↓
-Groq LLM Generation
-    ↓
-Structured Recommendation Response
-````
+
 
 ---
 
