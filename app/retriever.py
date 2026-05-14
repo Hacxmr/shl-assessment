@@ -605,4 +605,3 @@ def exact_match(name):
     return catalog_by_name.get(
         name.lower()
     )
-
