@@ -26,15 +26,23 @@ def cosine_similarity_manual(query_vec, doc_matrix):
 
     return similarities
 
-
 def rerank(query, retrieved):
 
     if not retrieved:
         return []
 
-    query_embedding = list(
-        embedding_model.embed([query])
+    # =========================================
+    # QUERY EMBEDDING
+    # =========================================
+
+    query_embedding = embedding_model.encode(
+        [query],
+        convert_to_numpy=True
     )[0]
+
+    # =========================================
+    # BUILD DOCUMENTS
+    # =========================================
 
     documents = []
 
@@ -50,27 +58,32 @@ def rerank(query, retrieved):
         {item['test_type']}
 
         Skills:
-        {item['keys']}
+        {item.get('keys', '')}
         """
 
         documents.append(text)
 
-    doc_embeddings = list(
-        embedding_model.embed(documents)
+    # =========================================
+    # DOCUMENT EMBEDDINGS
+    # =========================================
+
+    doc_embeddings = embedding_model.encode(
+        documents,
+        convert_to_numpy=True
     )
 
-    query_embedding = np.array(
-        query_embedding
-    )
-
-    doc_embeddings = np.array(
-        doc_embeddings
-    )
+    # =========================================
+    # COSINE SIMILARITY
+    # =========================================
 
     similarities = cosine_similarity_manual(
         query_embedding,
         doc_embeddings
     )
+
+    # =========================================
+    # RANKING
+    # =========================================
 
     ranked = []
 

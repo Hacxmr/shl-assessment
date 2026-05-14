@@ -2,7 +2,9 @@ import pickle
 import numpy as np
 
 from rank_bm25 import BM25Okapi
-from fastembed import TextEmbedding
+from sentence_transformers import SentenceTransformer
+
+
 
 
 
@@ -63,8 +65,7 @@ bm25 = BM25Okapi(tokenized_docs)
 print("Loading embedding model...")
 
 embedding_model = TextEmbedding(
-    model_name="BAAI/bge-small-en-v1.5",
-    providers=["CPUExecutionProvider"]
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
 )
 
 
@@ -324,14 +325,12 @@ def bm25_search(query, k=50):
 def semantic_search(query, k=50):
 
     try:
-
-        query_embedding = list(
-            embedding_model.embed([query])
+        query_embedding = model.encode(
+        [query],
+        convert_to_numpy=True
         )[0]
 
-        query_embedding = np.array(
-            query_embedding
-        )
+
 
         similarities = cosine_similarity_manual(
             query_embedding,
