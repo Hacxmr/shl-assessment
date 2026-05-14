@@ -7,7 +7,7 @@ numpy
 requests
 rank-bm25
 scikit-learn
-fastembed==0.3.6
+fastembed==0.8.0
 pytest
 groq
 ragas
