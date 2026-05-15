@@ -51,27 +51,10 @@ This improved controllability, reduced hallucinations, and made conversational b
 
 # 3. System Architecture
 
-The final system follows a retrieval-grounded conversational agent architecture.
+<p align="center">
+  <img src="diagram-shl.png" alt="SHL System Architecture" width="100%">
+</p>
 
-Pipeline:
-
-```text
-User Query
-↓
-Guardrails
-↓
-Clarification Detection
-↓
-Constraint Extraction
-↓
-Hybrid Retrieval
-↓
-Prompt Construction
-↓
-LLM Response Generation
-↓
-Structured Recommendation Output
-```
 
 The architecture was designed to:
 
