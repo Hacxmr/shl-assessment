@@ -7,13 +7,13 @@ from sentence_transformers import SentenceTransformer
 
 
 
-
 # LOAD METADATA
 
 
 with open("data/metadata.pkl", "rb") as f:
 
     metadata = pickle.load(f)
+
 
 
 
@@ -47,6 +47,7 @@ for item in metadata:
 
 
 
+
 # BM25 INDEX
 
 
@@ -59,30 +60,46 @@ bm25 = BM25Okapi(tokenized_docs)
 
 
 
-# EMBEDDING MODEL
+
+# LAZY LOADING
 
 
-print("Loading embedding model...")
+embedding_model = None
+
+doc_embeddings = None
 
 
-embedding_model = SentenceTransformer(
-    "sentence-transformers/all-MiniLM-L6-v2"
-)
+def load_embedding_model():
+
+    global embedding_model
+
+    if embedding_model is None:
+
+        print("Loading embedding model...")
+
+        embedding_model = SentenceTransformer(
+            "sentence-transformers/all-MiniLM-L6-v2"
+        )
+
+    return embedding_model
 
 
+def load_doc_embeddings():
 
+    global doc_embeddings
 
+    if doc_embeddings is None:
 
-# DOCUMENT EMBEDDINGS
+        print("Generating semantic embeddings...")
 
+        model = load_embedding_model()
 
-print("Generating semantic embeddings...")
+        doc_embeddings = model.encode(
+            documents,
+            convert_to_numpy=True
+        )
 
-doc_embeddings = embedding_model.encode(
-    documents,
-    convert_to_numpy=True
-)
-
+    return doc_embeddings
 
 
 
@@ -95,6 +112,7 @@ catalog_by_name = {
     item["name"].lower(): item
     for item in metadata
 }
+
 
 
 
@@ -123,6 +141,7 @@ def cosine_similarity_manual(
     )
 
     return similarities
+
 
 
 
@@ -182,6 +201,7 @@ def detect_domain(query):
                 return domain
 
     return "general"
+
 
 
 
@@ -257,10 +277,6 @@ def apply_domain_boost(
             if term in combined:
                 boost += 0.05
 
-        # ---------------------------------
-        # Extra Technical Boost
-        # ---------------------------------
-
         technical_terms = [
 
             "java",
@@ -285,6 +301,7 @@ def apply_domain_boost(
         )
 
     return results
+
 
 
 
@@ -321,24 +338,26 @@ def bm25_search(query, k=50):
 
 
 
+
 # SEMANTIC SEARCH
 
 
 def semantic_search(query, k=50):
 
     try:
-        query_embedding = embedding_model.encode(
+
+        model = load_embedding_model()
+
+        embeddings = load_doc_embeddings()
+
+        query_embedding = model.encode(
             [query],
             convert_to_numpy=True
         )[0]
 
-
-
-
-
         similarities = cosine_similarity_manual(
             query_embedding,
-            doc_embeddings
+            embeddings
         )
 
         top_indices = np.argsort(
@@ -370,6 +389,7 @@ def semantic_search(query, k=50):
 
 
 
+
 # METADATA FILTERING
 
 
@@ -387,10 +407,6 @@ def filter_results(
 
         keep = True
 
-        # -----------------------------
-        # Remote
-        # -----------------------------
-
         if constraints.get("remote"):
 
             if (
@@ -402,10 +418,6 @@ def filter_results(
 
                 keep = False
 
-        # -----------------------------
-        # Adaptive
-        # -----------------------------
-
         if constraints.get("adaptive"):
 
             if (
@@ -416,10 +428,6 @@ def filter_results(
             ):
 
                 keep = False
-
-        # -----------------------------
-        # Personality
-        # -----------------------------
 
         if constraints.get("personality"):
 
@@ -438,6 +446,7 @@ def filter_results(
             filtered.append(item)
 
     return filtered
+
 
 
 
@@ -479,6 +488,7 @@ def apply_penalties(results):
 
 
 
+
 # HYBRID RETRIEVAL
 
 
@@ -500,10 +510,6 @@ def hybrid_retrieve(
 
     merged = {}
 
-    # -------------------------------------
-    # Merge BM25
-    # -------------------------------------
-
     for item in bm25_results:
 
         name = item["name"]
@@ -515,10 +521,6 @@ def hybrid_retrieve(
         merged[name]["bm25_score"] = (
             item.get("bm25_score", 0)
         )
-
-    # -------------------------------------
-    # Merge Semantic
-    # -------------------------------------
 
     for item in semantic_results:
 
@@ -536,10 +538,6 @@ def hybrid_retrieve(
         merged.values()
     )
 
-    # -------------------------------------
-    # Domain Boosting
-    # -------------------------------------
-
     domain = detect_domain(query)
 
     results = apply_domain_boost(
@@ -548,18 +546,10 @@ def hybrid_retrieve(
         query
     )
 
-    # -------------------------------------
-    # Metadata Filtering
-    # -------------------------------------
-
     results = filter_results(
         results,
         constraints
     )
-
-    # -------------------------------------
-    # Hybrid Scoring
-    # -------------------------------------
 
     for item in results:
 
@@ -579,17 +569,9 @@ def hybrid_retrieve(
             bm25_score * 0.15
         )
 
-    # -------------------------------------
-    # Penalties
-    # -------------------------------------
-
     results = apply_penalties(
         results
     )
-
-    # -------------------------------------
-    # Final Sorting
-    # -------------------------------------
 
     results.sort(
         key=lambda x: x["hybrid_score"],
@@ -597,6 +579,7 @@ def hybrid_retrieve(
     )
 
     return results[:k]
+
 
 
 
