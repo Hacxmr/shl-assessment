@@ -1,4 +1,4 @@
-# Python
+#python
 
 
 __pycache__/
@@ -12,8 +12,8 @@ __pycache__/
 
 venv/
 shl_env/
-.env/
 .venv/
+env/
 
 
 
@@ -24,10 +24,11 @@ shl_env/
 
 
 
-# VS Code
+# VS Code / IDE
 
 
 .vscode/
+.idea/
 
 
 
@@ -44,6 +45,7 @@ shl_env/
 build/
 dist/
 *.egg-info/
+.eggs/
 
 
 
@@ -68,6 +70,15 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+
+
+# HuggingFace / Transformers Cache
+
+
+.cache/
+huggingface/
+hf_cache/
 
 
 
@@ -103,12 +114,10 @@ evaluation/*.csv
 
 
 
-# Render / Deployment
+# Deployment
 
 
 .render/
-runtime.txt
-render.yaml
 
 
 
@@ -127,4 +136,3 @@ qdrant_storage/
 
 *.bak
 *.swp
-
