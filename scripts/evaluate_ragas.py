@@ -16,9 +16,9 @@ from app.prompts import build_recommendation_prompt
 from app.llm import generate_response
 
 
-# =========================================
+
 # LOAD TEST CASES
-# =========================================
+
 
 with open(
     "evaluation/test_cases.json",
@@ -28,9 +28,9 @@ with open(
     test_cases = json.load(f)
 
 
-# =========================================
+
 # BUILD RAGAS DATASET
-# =========================================
+
 
 samples = []
 

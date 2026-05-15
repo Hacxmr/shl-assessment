@@ -34,14 +34,34 @@ from app.prompts import (
 
 
 
+
 # FASTAPI APP
 
 
 app = FastAPI(
     title="SHL Assessment Recommendation API",
-    version="1.0.0"
+    version="1.0.0",
+    description=(
+        "Conversational retrieval-grounded "
+        "SHL assessment recommendation agent."
+    )
 )
 
+
+
+
+# ROOT ENDPOINT
+
+
+@app.get("/")
+def root():
+
+    return {
+        "message": (
+            "SHL Assessment Recommendation "
+            "API is running"
+        )
+    }
 
 
 
@@ -58,6 +78,7 @@ def health():
 
 
 
+
 # CHAT ENDPOINT
 
 
@@ -69,15 +90,29 @@ def chat(req: ChatRequest):
 
     try:
 
-        
-        # Latest User Message
-        
+        # =================================
+        # VALIDATE REQUEST
+        # =================================
 
-        latest_user = req.messages[-1].content
+        if not req.messages:
 
-        
-        # Guardrails
-        
+            return {
+                "reply": (
+                    "No conversation messages provided."
+                ),
+                "recommendations": [],
+                "end_of_conversation": False
+            }
+
+        latest_user = (
+            req.messages[-1].content
+        )
+
+
+
+        # =================================
+        # GUARDRAILS
+        # =================================
 
         if detect_offtopic(latest_user):
 
@@ -100,17 +135,23 @@ def chat(req: ChatRequest):
                 "end_of_conversation": False
             }
 
-        
-        # Clarification Handling
-        
+
+
+        # =================================
+        # CLARIFICATION FLOW
+        # =================================
 
         if needs_clarification(req.messages):
 
-            prompt = build_clarification_prompt(
-                req.messages
+            prompt = (
+                build_clarification_prompt(
+                    req.messages
+                )
             )
 
-            reply = generate_response(prompt)
+            reply = generate_response(
+                prompt
+            )
 
             return {
                 "reply": reply,
@@ -118,9 +159,11 @@ def chat(req: ChatRequest):
                 "end_of_conversation": False
             }
 
-        
-        # Build Conversation Text
-        
+
+
+        # =================================
+        # BUILD FULL CONVERSATION
+        # =================================
 
         full_text = " ".join(
             [
@@ -129,19 +172,27 @@ def chat(req: ChatRequest):
             ]
         )
 
-        
-        # Extract Constraints
-        
 
-        constraints = extract_constraints(
-            req.messages
+
+        # =================================
+        # EXTRACT CONSTRAINTS
+        # =================================
+
+        constraints = (
+            extract_constraints(
+                req.messages
+            )
         )
 
-        
-        # Comparison Query
-        
 
-        if is_comparison_query(req.messages):
+
+        # =================================
+        # COMPARISON QUERY
+        # =================================
+
+        if is_comparison_query(
+            req.messages
+        ):
 
             results = hybrid_retrieve(
                 query=full_text,
@@ -149,35 +200,49 @@ def chat(req: ChatRequest):
                 k=5
             )
 
-            prompt = build_comparison_prompt(
-                full_text,
-                results
+            prompt = (
+                build_comparison_prompt(
+                    full_text,
+                    results
+                )
             )
 
-            reply = generate_response(prompt)
+            reply = generate_response(
+                prompt
+            )
 
             recommendations = []
 
             for item in results[:2]:
 
                 recommendations.append(
+
                     Recommendation(
                         name=item["name"],
-                        url=item.get("url")
-                        or "https://www.shl.com",
-                        test_type=item["test_type"]
+                        url=(
+                            item.get("url")
+                            or
+                            "https://www.shl.com"
+                        ),
+                        test_type=(
+                            item["test_type"]
+                        )
                     )
                 )
 
             return {
                 "reply": reply,
-                "recommendations": recommendations,
+                "recommendations": (
+                    recommendations
+                ),
                 "end_of_conversation": False
             }
 
-        
-        # Retrieval
-        
+
+
+        # =================================
+        # HYBRID RETRIEVAL
+        # =================================
 
         results = hybrid_retrieve(
             query=full_text,
@@ -185,57 +250,91 @@ def chat(req: ChatRequest):
             k=5
         )
 
-        
-        # Recommendation Prompt
-        
 
-        prompt = build_recommendation_prompt(
-            full_text,
-            results
+
+        # =================================
+        # BUILD PROMPT
+        # =================================
+
+        prompt = (
+            build_recommendation_prompt(
+                full_text,
+                results
+            )
         )
 
-        
-        # Generate LLM Response
-        
 
-        reply = generate_response(prompt)
 
-        
-        # Structured Recommendations
-        
+        # =================================
+        # GENERATE RESPONSE
+        # =================================
+
+        reply = generate_response(
+            prompt
+        )
+
+
+
+        # =================================
+        # STRUCTURED OUTPUT
+        # =================================
 
         recommendations = []
 
         for item in results:
 
             recommendations.append(
+
                 Recommendation(
                     name=item["name"],
-                    url=item.get("url")
-                    or "https://www.shl.com",
-                    test_type=item["test_type"]
+                    url=(
+                        item.get("url")
+                        or
+                        "https://www.shl.com"
+                    ),
+                    test_type=(
+                        item["test_type"]
+                    )
                 )
             )
 
-        
-        # Final Response
-        
+
+
+        # =================================
+        # FINAL RESPONSE
+        # =================================
 
         return {
             "reply": reply,
-            "recommendations": recommendations,
+            "recommendations": (
+                recommendations
+            ),
             "end_of_conversation": True
         }
 
+
+
+    # =====================================
+    # ERROR HANDLING
+    # =====================================
+
     except Exception as e:
 
-        print("\n========== ERROR ==========")
+        print(
+            "\n========== ERROR =========="
+        )
+
         traceback.print_exc()
-        print("===========================\n")
+
+        print(
+            "===========================\n"
+        )
 
         return {
-            "reply": str(e),
+            "reply": (
+                "Internal server error: "
+                f"{str(e)}"
+            ),
             "recommendations": [],
             "end_of_conversation": False
         }
-
